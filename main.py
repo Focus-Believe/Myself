@@ -8,6 +8,7 @@ db=DataB()
 clients={}
 html='''
 <h1>CHAT APP</h1>
+<h4>UPDATE</h4>
 <input id ='name' placeholder ='Enter Name'>
 <br>
 <input id ='msg' placeholder ='Write Message'>
