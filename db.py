@@ -1,87 +1,53 @@
-import sqlite3
-import os
-import psycopg2
+import psycopg2, os
 
-class DataB:
+class DB:
     def __init__(self):
-        self.db_url = os.environ.get('DATABASE_URL')
+        self.conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        self.cur = self.conn.cursor()
 
+        self.cur.execute("""
+        CREATE TABLE IF NOT EXISTS users(
+            id SERIAL PRIMARY KEY,
+            name TEXT UNIQUE,
+            password TEXT
+        )
+        """)
+
+        self.cur.execute("""
+        CREATE TABLE IF NOT EXISTS messages(
+            id SERIAL PRIMARY KEY,
+            sender TEXT,
+            receiver TEXT,
+            room TEXT,
+            msg TEXT,
+            time TEXT
+        )
+        """)
+
+        self.conn.commit()
+
+    def register(self, name, password):
         try:
-            if self.db_url:
-                # PostgreSQL (Render)
-                self.conn = psycopg2.connect(self.db_url, sslmode='require')
-                self.is_postgres = True
-            else:
-                # SQLite (Local)
-                self.conn = sqlite3.connect('chat.db', check_same_thread=False)
-                self.is_postgres = False
-
-            self.cursor = self.conn.cursor()
-            self.Ct()
-
-        except Exception as e:
-            print("❌ DB Connection Error:", e)
-
-    # ----------------------------
-    # Create Table
-    # ----------------------------
-    def Ct(self):
-        try:
-            if self.is_postgres:
-                query = '''CREATE TABLE IF NOT EXISTS chat(
-                            id SERIAL PRIMARY KEY,
-                            name TEXT,
-                            msg TEXT)'''
-            else:
-                query = '''CREATE TABLE IF NOT EXISTS chat(
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            name TEXT,
-                            msg TEXT)'''
-
-            self.cursor.execute(query)
+            self.cur.execute(
+                "INSERT INTO users(name,password) VALUES(%s,%s)",
+                (name, password)
+            )
             self.conn.commit()
-
-        except Exception as e:
-            print("❌ Table Error:", e)
-
-    # ----------------------------
-    # Save (same name: sv)
-    # ----------------------------
-    def sv(self, name, msg):
-        try:
-            if self.is_postgres:
-                self.cursor.execute(
-                    'INSERT INTO chat(name, msg) VALUES(%s, %s)',
-                    (name, msg)
-                )
-            else:
-                self.cursor.execute(
-                    'INSERT INTO chat(name, msg) VALUES(?, ?)',
-                    (name, msg)
-                )
-
-            self.conn.commit()
-
-        except Exception as e:
-            print("❌ Insert Error:", e)
-
-    # ----------------------------
-    # Show (same name: sh)
-    # ----------------------------
-    def sh(self):
-        try:
-            self.cursor.execute('SELECT name, msg FROM chat ORDER BY id DESC')
-            return self.cursor.fetchall()
-
-        except Exception as e:
-            print("❌ Fetch Error:", e)
-            return []
-
-    # ----------------------------
-    # Close (optional)
-    # ----------------------------
-    def close(self):
-        try:
-            self.conn.close()
+            return True
         except:
-            pass
+            self.conn.rollback()
+            return False
+
+    def login(self, name, password):
+        self.cur.execute(
+            "SELECT * FROM users WHERE name=%s AND password=%s",
+            (name, password)
+        )
+        return self.cur.fetchone() is not None
+
+    def save_msg(self, s, r, room, msg, time):
+        self.cur.execute(
+            "INSERT INTO messages(sender,receiver,room,msg,time) VALUES(%s,%s,%s,%s,%s)",
+            (s, r, room, msg, time)
+        )
+        self.conn.commit()
