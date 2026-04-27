@@ -1,9 +1,11 @@
-import json, os
+import json
+import os
 from datetime import datetime
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from db import DB
 from manager import Manager
@@ -12,13 +14,14 @@ app = FastAPI()
 db = DB()
 mgr = Manager()
 
+# static এবং templates ফোল্ডার সেটআপ
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
+templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
-def home():
-    return FileResponse("templates/index.html")
-
+async def home(request: Request):
+    # এটি templates/index.html ফাইলটি লোড করবে
+    return templates.TemplateResponse("index.html", {"request": request})
 
 async def send_users():
     users = mgr.users()
@@ -27,7 +30,6 @@ async def send_users():
             "type": "users",
             "data": users
         }))
-
 
 @app.websocket("/ws")
 async def ws(websocket: WebSocket):
@@ -94,6 +96,6 @@ async def ws(websocket: WebSocket):
         mgr.disconnect(websocket)
         await send_users()
 
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+        
