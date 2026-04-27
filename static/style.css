@@ -1,0 +1,112 @@
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0b1220;
+    color:white;
+}
+
+.login{
+    padding:20px;
+    text-align:center;
+}
+
+.login input{
+    width:90%;
+    padding:10px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+}
+
+.login button{
+    width:45%;
+    padding:10px;
+    margin:5px;
+    background:#2563eb;
+    border:none;
+    color:white;
+    border-radius:8px;
+}
+
+.app{
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:30%;
+    background:#111827;
+    padding:10px;
+}
+
+.sidebar li{
+    list-style:none;
+    padding:10px;
+    margin:5px 0;
+    background:#1f2937;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.sidebar li:hover{
+    background:#2563eb;
+}
+
+.chat{
+    width:70%;
+    display:flex;
+    flex-direction:column;
+}
+
+.chat-header{
+    padding:10px;
+    background:#111827;
+    font-weight:bold;
+}
+
+.messages{
+    flex:1;
+    padding:10px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.msg{
+    max-width:70%;
+    padding:10px;
+    border-radius:12px;
+}
+
+.me{
+    align-self:flex-end;
+    background:#2563eb;
+}
+
+.other{
+    align-self:flex-start;
+    background:#374151;
+}
+
+.input-box{
+    display:flex;
+    padding:10px;
+    background:#111827;
+}
+
+.input-box input{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+}
+
+.input-box button{
+    margin-left:10px;
+    background:#2563eb;
+    border:none;
+    color:white;
+    padding:10px;
+    border-radius:8px;
+}
